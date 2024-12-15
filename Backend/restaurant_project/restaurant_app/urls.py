@@ -21,11 +21,10 @@ urlpatterns = [
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('customer_register', CustomerRegister.as_view(), name='customer_register' ), 
-    path('manager_register', CreateManagerAccount.as_view(), name='manager_register' ),
+    path('payment/', PaymentView.as_view(), name='payment'),
     path('orders/', CreateOrderView.as_view(), name='order'),
     path('cart-detail/', CartDetailView.as_view(), name='cart-detail'),
-    path('google/', GoogleSignInView.as_view(), name='google'),
+
 ]
 
 urlpatterns += router.urls

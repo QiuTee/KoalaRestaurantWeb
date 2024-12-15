@@ -39,5 +39,6 @@ class Command(BaseCommand):
             cursor.close() 
             conn.close()
         except Exception as e : 
+            conn.rollback()
             print(f"error : {str(e)}")
         

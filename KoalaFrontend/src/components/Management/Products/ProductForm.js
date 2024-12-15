@@ -65,7 +65,7 @@ const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handl
                 console.log(`${key}:`, value);
             }
             const method = isEditing ? 'put' : 'post';
-            const url = isEditing ? `management_product/${formData.id}/` : 'management_product/';
+            const url = isEditing ? `app/management_product/${formData.id}/` : 'app/management_product/';
 
             const response = await submission(url, method, formDataToSend, {
                 'Authorization': `Bearer ${accessToken}`,

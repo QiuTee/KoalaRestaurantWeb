@@ -23,7 +23,7 @@ const ProductManagement = () => {
         const fetchProducts = async () => {
             if (!tokens?.access) return;
             try {
-                const data = await submission("management_product/", "get", null, {
+                const data = await submission("app/management_product/", "get", null, {
                     Authorization: `Bearer ${tokens.access}`,
                 });
                 setProducts(data);
@@ -66,7 +66,7 @@ const ProductManagement = () => {
 
     const handleDeleteProduct = async (id) => {
         try {
-            await submission(`management_product/${id}/`, "delete", null, {
+            await submission(`app/management_product/${id}/`, "delete", null, {
                 Authorization: `Bearer ${tokens.access}`,
             });
             setProducts(products.filter((prod) => prod.id !== id));

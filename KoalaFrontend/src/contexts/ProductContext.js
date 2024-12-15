@@ -12,7 +12,7 @@ export const ProductProvider = ({ children }) => {
     const fetchProducts = async () => {
       if (!tokens?.access) return;
       try {
-        const data = await submission("management_product/", "get", null, {
+        const data = await submission("app/management_product/", "get", null, {
           Authorization: `Bearer ${tokens.access}`,
         });
         setProducts(data);

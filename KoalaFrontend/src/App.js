@@ -21,6 +21,7 @@ import { ProductProvider } from "./contexts/ProductContext";
 import FeedbackManagement from "./components/Management/Feedbacks/FeedbackManagement";
 import BookingManagement from "./components/Management/Bookings/BookingManagement";
 import PaymentManagement from "./components/Management/Payments/PaymentManagement";
+import Payment from "./components/Payment/Payment";
 
 const AppContent = ({ theme, setTheme }) => {
   const location = useLocation();
@@ -59,6 +60,7 @@ const AppContent = ({ theme, setTheme }) => {
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/payment" element={<Payment />} />
       </Routes>
     </div>
   );

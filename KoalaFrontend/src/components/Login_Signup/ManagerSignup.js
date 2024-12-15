@@ -70,7 +70,7 @@ const ManagerSignup = () => {
         if (!validateForm()) return;
 
         try {
-            const response = await submission('manager_register', 'post', {
+            const response = await submission('authentication/manager/register/', 'post', {
                 password: formData.password,
                 email: formData.email,
                 retype_password: formData.confirmPassword,

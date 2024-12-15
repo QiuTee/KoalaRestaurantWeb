@@ -4,6 +4,8 @@ import submission from "../../utils/submission";
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import LoginForm from "./LoginForm";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Formlogin() {
   const navigate = useNavigate();
@@ -50,19 +52,19 @@ export default function Formlogin() {
           password: password,
         };
 
-        const response = await submission("api/token/", "post", payload);
+        const response = await submission("authentication/customer/login/", "post", payload);
 
-        if (response && response.access) {
-          localStorage.setItem("authToken", response.access);
-          setSuccessMessage("Login successful! Redirecting...");
+        if (response && response.status === "200") {
+          localStorage.setItem("authToken", response.data.access);
+          toast.success(response.message);
           setTimeout(() => {
             navigate("/");
           }, 2000);
         } else {
-          setErrors({ general: "Invalid email or password" });
+          toast.error("Email or password is incorrect");
         }
       } catch (error) {
-        setErrors({ general: "An error occurred. Please try again later." });
+        toast.error("An error occurred. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -79,16 +81,21 @@ export default function Formlogin() {
         access_token: credentialResponse.credential
       };
       
-      const response = await submission("google/", "post", payload);
+      const response = await submission("authentication/google/", "post", payload);
 
       if (response && response.status === "200 OK") {
         localStorage.setItem("authToken", response.access);
+        toast.success("Google login successful!");
         setSuccessMessage("Login successful! Redirecting...");
         setTimeout(() => {
           navigate("/");
         }, 2000);
+      } else {
+        toast.error("Google login failed. Please try again.");
+        setErrors({ general: "Google login failed. Please try again." });
       }
     } catch (error) {
+      toast.error("Google login failed. Please try again.");
       setErrors({ general: "Google login failed. Please try again." });
     }
   };
@@ -96,6 +103,17 @@ export default function Formlogin() {
   return (
     <GoogleOAuthProvider clientId="913758183273-5qr97tje8rcq8e2k512g2qjh25d0shre.apps.googleusercontent.com">
       <div className="flex justify-center items-center min-h-screen overflow-hidden">
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <div className="w-11/12 max-w-[700px] px-10 py-20 rounded-3xl bg-white border-2 border-gray-100">
           <h1 className="text-5xl font-semibold">Welcome to our restaurant</h1>
           <p className="font-medium text-lg text-gray-500 mt-4">

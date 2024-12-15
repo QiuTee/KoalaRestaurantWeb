@@ -1,220 +1,126 @@
 import React, { useState } from "react";
-import PaymethodButton from "../Button/PaymethodButton";
-import GobackButton from "../Button/GobackButton";
-import InvoiceModal from "./InvoiceModal";
 import { useNavigate } from "react-router-dom";
-import AxiosInstance from "../../utils/Axios";
+import { toast } from 'react-toastify';
+import submission from "../../utils/submission";
+import { jwtDecode } from "jwt-decode";
 
-const Payment = ({ cartItems, calculateGrandTotal, onGoBack }) => {
+const Payment = ({ cartItems, totalAmount, onClose }) => {
   const [paymentMethod, setPaymentMethod] = useState("cash");
-  const [showInvoice, setShowInvoice] = useState(false);
-  const [creditCardDetails, setCreditCardDetails] = useState({
-    cardNumber: "",
-    expirationDate: "",
-  });
-  const [validationError, setValidationError] = useState("");
   const navigate = useNavigate();
 
-  const handlePaymentMethodChange = (method) => {
-    setPaymentMethod(method);
-    setValidationError("");
-  };
-
-  const validateInputs = () => {
-    const cardNumberRegex = /^[0-9]{16}$/;
-    const expirationDateRegex = /^(0[1-9]|1[0-2])\/\d{4}$/;
-
-    if (paymentMethod === "creditCard") {
-      if (!cardNumberRegex.test(creditCardDetails.cardNumber)) {
-        return "Card Number must be 16 digits.";
-      }
-      if (!expirationDateRegex.test(creditCardDetails.expirationDate)) {
-        return "Expiration Date must be in MM/YYYY format.";
-      }
-    }
-    return "";
-  };
-
-  const handleConfirmPayment = async () => {
-    setShowInvoice(true);
-    const error = validateInputs();
-    if (error) {
-      setValidationError(error);
-      return;
-    }
-    setValidationError("");
-
-    const token = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
-    let customerId;
+  const handlePayment = async () => {
     try {
-      const userResponse = await AxiosInstance.get("/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      console.log("Starting payment process...");
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please login to pay!');
+        navigate('/login');
+        return;
+      }
+
+      const decoded = jwtDecode(token);
+      const customerId = decoded?.user_id;
+
+      console.log("Sending payment request...", {
+        customerId,
+        paymentMethod,
+        totalAmount
       });
-      customerId = userResponse.data.id;
-    } catch (err) {
-      console.error("Failed to fetch user data:", err);
-      return;
+
+      const response = await submission(
+        `app/payment/?customer=${customerId}`,
+        'post',
+        {
+          payment_method: paymentMethod,
+          total_amount: totalAmount,
+          cart_items: cartItems.map(item => ({
+            menu_item: item.id,
+            quantity: item.quantity,
+            price: item.price
+          }))
+        },
+        {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      );
+
+      console.log("Payment response:", response);
+
+      if (response && response.status === '200') {
+        toast.success('Payment successfully!');
+        onClose();
+        setTimeout(() => {
+          navigate('/order-history');
+        }, 2000);
+      } else {
+        toast.error('Payment failed! Please try again.');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('An error occurred during payment!');
     }
-
-    const orderData = {
-      customer: customerId,
-      status: "Pending",
-      items: cartItems.map((item) => ({
-        menu_item: item.id, // Assuming each item has an `id` field
-        quantity: item.quantity,
-      })),
-    };
-
-    try {
-      // Send order data to backend
-      const response = await AxiosInstance.post("/api/orders/", orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Redirect to PaymentManagement page with the new order data
-      navigate("/history", {
-        state: { order: response.data },
-      });
-    } catch (err) {
-      console.error("Failed to confirm payment:", err);
-    }
-  };
-
-  const handlePrintInvoice = () => {
-    window.print();
-  };
-
-  const handleCloseInvoice = () => {
-    setShowInvoice(false);
-  };
-
-  const handleCreditCardChange = (field, value) => {
-    setCreditCardDetails((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
   };
 
   return (
-    <div className="bg-white shadow-lg z-50 p-8 rounded-lg">
-      {!showInvoice ? (
-        <>
-          <h2 className="text-2xl font-bold mb-4 text-black">
-            Payment Options
-          </h2>
-
-          <h3 className="text-lg font-semibold mb-4 text-black">
-            Order Summary:
-          </h3>
-          <ul className="mb-4">
-            {cartItems.map((item, index) => (
-              <li key={index} className="mb-2 text-black">
-                {item.title} - {item.quantity} x {item.price} =
-                {item.quantity * item.price}
-              </li>
-            ))}
-          </ul>
-          <h3 className="text-lg font-semibold mb-6 text-black">
-            Grand Total: {calculateGrandTotal()}
-          </h3>
-
-          <h3 className="text-lg font-semibold mb-4 text-black">
-            Choose Payment Method:
-          </h3>
-          <div className="flex flex-col gap-2 mb-6">
-            <label className="font-medium h-14 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg">
-              <input
-                type="radio"
-                name="payment"
-                value="cash"
-                checked={paymentMethod === "cash"}
-                onChange={() => handlePaymentMethodChange("cash")}
-              />
-              <span className="ml-2 text-black">Cash</span>
-            </label>
-            <label className="font-medium h-14 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg">
-              <input
-                type="radio"
-                name="payment"
-                value="bankTransfer"
-                checked={paymentMethod === "bankTransfer"}
-                onChange={() => handlePaymentMethodChange("bankTransfer")}
-              />
-              <span className="ml-2 text-black">Bank</span>
-            </label>
-            <label className="font-medium h-14 relative hover:bg-zinc-100 flex items-center px-3 gap-3 rounded-lg">
-              <input
-                type="radio"
-                name="payment"
-                value="creditCard"
-                checked={paymentMethod === "creditCard"}
-                onChange={() => handlePaymentMethodChange("creditCard")}
-              />
-              <span className="ml-2 text-black">Credit Card</span>
-            </label>
+    <div className="space-y-6">
+      {/* Thông tin đơn hàng */}
+      <div className="space-y-4">
+        <h3 className="font-semibold">Order Information</h3>
+        {cartItems?.map((item, index) => (
+          <div key={index} className="flex justify-between">
+            <span>{item.food_name} x {item.quantity}</span>
+            <span>{item.price * item.quantity} VND</span>
           </div>
-
-          {paymentMethod === "bankTransfer" && (
-            <div className="mb-4 text-black">
-              <p className="font-medium">Bank Transfer Instructions:</p>
-              <p>Bank Name: TP Bank</p>
-              <p>Account Number: 123456789</p>
-              <p>Account Name: Koala Restaurant</p>
-            </div>
-          )}
-
-          {paymentMethod === "creditCard" && (
-            <div className="mb-4">
-              <label className="block text-black">Card Number:</label>
-              <input
-                type="text"
-                className="text-black shadow-lg focus:border-2 border-gray-300 px-3 py-2 rounded-xl w-56"
-                value={creditCardDetails.cardNumber}
-                onChange={(e) =>
-                  handleCreditCardChange(
-                    "cardNumber",
-                    e.target.value.replace(/[^0-9]/g, "")
-                  )
-                }
-                maxLength={16}
-              />
-              <label className="block text-black mt-4">
-                Expiration Date (MM/YYYY):
-              </label>
-              <input
-                type="text"
-                className="text-black shadow-lg focus:border-2 border-gray-300 px-3 py-2 rounded-xl w-56"
-                value={creditCardDetails.expirationDate}
-                onChange={(e) =>
-                  handleCreditCardChange("expirationDate", e.target.value)
-                }
-                placeholder="MM/YYYY"
-              />
-            </div>
-          )}
-
-          {validationError && (
-            <p className="text-red-500 font-semibold mb-4">{validationError}</p>
-          )}
-
-          <div className="flex justify-between">
-            <button onClick={onGoBack}>
-              <GobackButton />
-            </button>
-            <button onClick={handleConfirmPayment}>
-              <PaymethodButton />
-            </button>
+        ))}
+        <div className="border-t pt-4">
+          <div className="flex justify-between font-bold">
+            <span>Total:</span>
+            <span>{totalAmount} VND</span>
           </div>
-        </>
-      ) : (
-        <InvoiceModal
-          cartItems={cartItems}
-          grandTotal={calculateGrandTotal()}
-          paymentMethod={paymentMethod}
-          onClose={handleCloseInvoice}
-          onPrint={handlePrintInvoice}
-        />
-      )}
+        </div>
+      </div>
+
+      {/* Phương thức thanh toán */}
+      <div className="space-y-4">
+        <h3 className="font-semibold">Phương thức thanh toán</h3>
+        <div className="space-y-2">
+          <label className="flex items-center space-x-3">
+            <input
+              type="radio"
+              value="cash"
+              checked={paymentMethod === "cash"}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            />
+            <span>Cash</span>
+          </label>
+          <label className="flex items-center space-x-3">
+            <input
+              type="radio"
+              value="bank"
+              checked={paymentMethod === "bank"}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            />
+            <span>Bank Transfer</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handlePayment}
+          className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+        >
+          Confirm Payment
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,14 +1,16 @@
-import React, { useContext, useEffect, useCallback } from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import { CartContext } from "../components/Order/CartContext";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import CheckoutModal from "../components/Checkout/CheckoutModal";
 import submission from "../utils/submission";
 import { jwtDecode } from "jwt-decode";
+import Payment from "../components/Payment/Payment";
 
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/drm1mr9va/";
 
 const Cart = () => {
   const { cartItems, setCartItems } = useContext(CartContext);
+  const [showPayment, setShowPayment] = useState(false);
 
   const fetchCartItems = useCallback(async () => {
     try {
@@ -22,7 +24,7 @@ const Cart = () => {
       const customerId = decoded?.user_id;
 
       const response = await submission(
-        `cart-detail/?customer=${customerId}`,
+        `app/cart-detail/?customer=${customerId}`,
         "get",
         null,
         {
@@ -135,12 +137,31 @@ const Cart = () => {
             cartItems={cartItems}
             calculateTotalPrice={calculateTotalPrice}
             calculateGrandTotal={calculateGrandTotal}
-            closeModal={() => {}}
-            confirmPayment={() => alert("Payment confirmed!")}
-            alwaysOpen={true}
+            setShowPayment={setShowPayment}
           />
         </div>
       </div>
+
+      {showPayment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Thanh toán</h2>
+              <button 
+                onClick={() => setShowPayment(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <Payment 
+              cartItems={cartItems} 
+              totalAmount={calculateGrandTotal()} 
+              onClose={() => setShowPayment(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

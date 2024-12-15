@@ -18,7 +18,7 @@ const EmployeeManagement = () => {
         const fetchEmployees = async () => {
             if (!tokens?.access) return;
             try {
-                const data = await submission("management_employee/", "get", null, {
+                const data = await submission("app/management_employee/", "get", null, {
                     Authorization: `Bearer ${tokens.access}`
                 });
                 setEmployees(data);

@@ -1,40 +1,43 @@
-import React, { useState, useContext } from "react";
-import { CartContext } from "../Order/CartContext";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-const OrderButton = ({ product, quantity, buttonTitle }) => {
-    const { addToCart } = useContext(CartContext);
-    const [message, setMessage] = useState("");
+const OrderButton = ({ cartItems, calculateGrandTotal, setShowPayment }) => {
+  const navigate = useNavigate();
 
-    const handleAddToCart = () => {
-        const productToAdd = {
-            ...product,
-            quantity: parseInt(quantity),
-        };
-        addToCart(productToAdd);
-        console.log(productToAdd)
-        setMessage("Added to cart successfully!");
+  const handleOrder = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please login to place an order!');
+        navigate('/login');
+        return;
+      }
 
-        setTimeout(() => {
-            setMessage("");
-        }, 700);
-    };
+      // Mở modal payment
+      setShowPayment(true);
 
-    return (
-        <div>
-            <button
-                onClick={handleAddToCart}
-                className="mt-2 px-10 py-2 bg-primary hover:bg-primary-dark text-white transition-all rounded-full"
-            >
-                {buttonTitle}
-            </button>
+    } catch (error) {
+      console.error('Order error:', error);
+      toast.error('An error occurred!');
+    }
+  };
 
-            {message && (
-                <div className="mt-3 text-green-500 font-semibold text-sm">
-                    {message}
-                </div>
-            )}
-        </div>
-    );
+  return (
+    <button
+      onClick={handleOrder}
+      disabled={!cartItems || cartItems.length === 0}
+      className={`
+        w-full py-3 mt-4 
+        font-medium text-white 
+        bg-orange-500 hover:bg-orange-600 
+        rounded-lg transition-colors
+        ${(!cartItems || cartItems.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}
+      `}
+    >
+      Place an order
+    </button>
+  );
 };
 
 export default OrderButton;

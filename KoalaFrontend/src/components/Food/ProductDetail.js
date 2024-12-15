@@ -27,7 +27,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const data = await submission(`show_item/${id}`, "get");
+                const data = await submission(`app/show_item/${id}`, "get");
                 setProduct(data);
             } catch (err) {
                 console.error("Error fetching product:", err);
@@ -65,7 +65,7 @@ const ProductDetail = () => {
         };
 
         try {
-            const response = await submission("cart/", "post", cartData,
+            const response = await submission("app/cart/", "post", cartData,
                 {
                     Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Retrieve the token
                     // Use the current token

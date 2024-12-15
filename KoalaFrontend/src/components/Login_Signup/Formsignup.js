@@ -89,7 +89,7 @@ export default function Formsignup() {
 
       try {
         // Send the data to the backend
-        const response = await submission("customer_register", "post", payload);
+        const response = await submission("authentication/customer/register/", "post", payload);
         console.log("Sign up successful", response);
         
         // Set success message and navigate to login page

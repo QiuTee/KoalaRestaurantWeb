@@ -21,7 +21,7 @@ const ProductList = ({ handleEditProduct }) => {
   const loadProducts = useCallback(async () => {
     if (!tokens?.access) return;
     try {
-      const response = await submission("management_product/", "get", null, {
+      const response = await submission("app/management_product/", "get", null, {
         Authorization: `Bearer ${tokens.access}`,
       });
       setProducts(response);
@@ -36,7 +36,7 @@ const ProductList = ({ handleEditProduct }) => {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await submission(`management_product/${productId}`, "delete", null, {
+      await submission(`app/management_product/${productId}`, "delete", null, {
         Authorization: `Bearer ${tokens.access}`,
       });
       setProducts(products.filter((prod) => prod.id !== productId));

@@ -67,7 +67,7 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 console.log(`${key}:`, value);
             }
             const method = isEditing ? 'put' : 'post';
-            const url = isEditing ? `management_employee/${formData.id}/` : 'management_employee/';
+            const url = isEditing ? `app/management_employee/${formData.id}/` : 'app/management_employee/';
 
             const response = await submission(url, method, formDataToSend, {
                 'Authorization': `Bearer ${accessToken}`,

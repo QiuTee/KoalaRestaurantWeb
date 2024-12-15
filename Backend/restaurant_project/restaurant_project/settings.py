@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'django_extensions',
+    'authentication'
     
 ]
 cloudinary.config( 
@@ -80,7 +81,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'restaurant_app.backends.AuthenticateUsername',
+    'authentication.backends.AuthenticateUsername',
     'django.contrib.auth.backends.ModelBackend',
 ]
 SIMPLE_JWT = {
@@ -123,7 +124,7 @@ SIMPLE_JWT = {
 
 ROOT_URLCONF = "restaurant_project.urls"
 
-AUTH_USER_MODEL = 'restaurant_app.BaseUser'
+AUTH_USER_MODEL = 'authentication.BaseUser'
 
 TEMPLATES = [
     {
@@ -152,7 +153,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'restaurant_project',
         'USER': 'postgres',
-        'PASSWORD': 'thang123',
+        'PASSWORD': config("PASSWORD"),
         'HOST': '127.0.0.1',  
         'PORT': '5432',      
     }

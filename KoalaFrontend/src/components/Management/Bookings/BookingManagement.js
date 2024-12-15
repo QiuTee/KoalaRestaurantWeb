@@ -10,7 +10,7 @@ const BookingManagement = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const data = await submission("customer_booking/", "get", null, {
+        const data = await submission("app/customer_booking/", "get", null, {
           Authorization: `Bearer ${tokens?.access}`,
         });
         setBookings(data);
@@ -29,7 +29,7 @@ const BookingManagement = () => {
       return;
     }
     try {
-      await submission(`customer_booking/${id}/`, "delete", null, {
+      await submission(`app/customer_booking/${id}/`, "delete", null, {
         Authorization: `Bearer ${tokens?.access}`,
       });
       setBookings(bookings.filter((booking) => booking.id !== id));

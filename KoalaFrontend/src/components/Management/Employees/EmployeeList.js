@@ -21,7 +21,7 @@ const EmployeeList = ({ handleEditEmployee }) => {
   const loadEmployees = useCallback(async () => {
     if (!tokens?.access) return;
     try {
-      const response = await submission("management_employee/", "get", null, {
+      const response = await submission("app/management_employee/", "get", null, {
         Authorization: `Bearer ${tokens.access}`,
       });
       setEmployees(response);
@@ -36,7 +36,7 @@ const EmployeeList = ({ handleEditEmployee }) => {
 
   const handleDeleteEmployee = async (employeeId) => {
     try {
-      await submission(`management_employee/${employeeId}`, "delete", null, {
+      await submission(`app/management_employee/${employeeId}`, "delete", null, {
         Authorization: `Bearer ${tokens.access}`,
       });
       setEmployees(employees.filter((emp) => emp.id !== employeeId));
