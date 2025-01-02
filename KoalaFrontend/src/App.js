@@ -22,64 +22,126 @@ import FeedbackManagement from "./components/Management/Feedbacks/FeedbackManage
 import BookingManagement from "./components/Management/Bookings/BookingManagement";
 import PaymentManagement from "./components/Management/Payments/PaymentManagement";
 import Payment from "./components/Payment/Payment";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 const AppContent = ({ theme, setTheme }) => {
-  const location = useLocation();
+    const location = useLocation();
 
-  const hideNavbarPaths = ["/feedback-management", "/payment-management", "/booking_management", "/manager-login", "/manager-signup", "/admin-dashboard", "/employee-management", "/product-management", "/settings", "/login", "/signup"];
-  const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
+    const hideNavbarPaths = [
+        "/feedback-management",
+        "/payment-management",
+        "/booking_management",
+        "/manager-login",
+        "/manager-signup",
+        "/admin-dashboard",
+        "/employee-management",
+        "/product-management",
+        "/settings",
+        "/login",
+        "/signup"
+    ];
+    const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
-  return (
-    <div
-      className={`${
-        theme === "light" ? "bg-white text-black" : "bg-slate-900 text-white"
-      } transition-colors min-h-screen`}
-    >
-      {shouldShowNavbar && <Navbar theme={theme} setTheme={setTheme} />}
-      <Routes>
-        {/* Routes for the pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/manager-login" element={<ManagerLogin />} />
-        <Route path="/manager-signup" element={<ManagerSignup />} />
+    return (
+        <div
+            className={`${
+                theme === "light" ? "bg-white text-black" : "bg-slate-900 text-white"
+            } transition-colors min-h-screen`}
+        >
+            {shouldShowNavbar && <Navbar theme={theme} setTheme={setTheme} />}
+            <Routes>
+                {/* Routes for the pages */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/manager-login" element={<ManagerLogin />} />
+                <Route path="/manager-signup" element={<ManagerSignup />} />
 
-        {/* Management section wrapped with Layout */}
-        <Route element={<ManagementLayout />}>
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/employee-management" element={<EmployeeManagement />} />
-          <Route path="/product-management" element={<ProductManagement />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/booking_management" element={<BookingManagement />} />
-          <Route path="/payment-management" element={<PaymentManagement />} />
-          <Route path="/feedback-management" element={<FeedbackManagement />} />
-        </Route>
+                {/* Management section wrapped with Layout */}
+                <Route element={<ManagementLayout />}>
+                    <Route
+                        path="/admin-dashboard"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <AdminDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/employee-management"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <EmployeeManagement />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/product-management"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <ProductManagement />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/settings"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <Settings />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/booking_management"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <BookingManagement />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/payment-management"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <PaymentManagement />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/feedback-management"
+                        element={
+                            <ProtectedRoute requiredRole="manager">
+                                <FeedbackManagement />
+                            </ProtectedRoute>
+                        }
+                    />
+                </Route>
 
-        {/* General pages */}
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/payment" element={<Payment />} />
-      </Routes>
-    </div>
-  );
+                {/* General pages */}
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/payment" element={<Payment />} />
+            </Routes>
+        </div>
+    );
 };
 
 function App() {
-  const [theme, setTheme] = useState("light");
+    const [theme, setTheme] = useState("light");
 
-  return (
-    <CartProvider>
-      <Router>
-        <AuthProvider>
-        <ProductProvider>
-          <AppContent theme={theme} setTheme={setTheme} />
-          </ProductProvider>
-        </AuthProvider>
-      </Router>
-    </CartProvider>
-  );
+    return (
+        <CartProvider>
+            <Router>
+                <AuthProvider>
+                    <ProductProvider>
+                        <AppContent theme={theme} setTheme={setTheme} />
+                    </ProductProvider>
+                </AuthProvider>
+            </Router>
+        </CartProvider>
+    );
 }
 
 export default App;

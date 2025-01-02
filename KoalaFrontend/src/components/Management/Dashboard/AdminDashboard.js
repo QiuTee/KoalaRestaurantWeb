@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StatCard from '../StatCard';
 import RevenueChart from './RevenueChart';
 
 const AdminDashboard = () => {
     const [timeRange, setTimeRange] = useState('month');
 
+    // Dữ liệu doanh thu
     const revenueDataSets = {
         day: { dates: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], values: [200, 300, 250, 400, 350, 450, 500] },
         month: { dates: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], values: [5000, 10000, 7500, 12000, 15000, 13000, 16000, 14500, 17000, 18000, 15500, 20000] },
@@ -12,6 +13,14 @@ const AdminDashboard = () => {
     };
 
     const handleTimeRangeChange = (e) => setTimeRange(e.target.value);
+
+    
+    useEffect(() => {
+        const tokens = localStorage.getItem('auth_tokens'); 
+        console.log('Token:', tokens);
+
+       
+    }, []);
 
     return (
         <div className="flex h-screen bg-gray-100 text-gray-800">

@@ -30,6 +30,7 @@ class ManagerAccountFactory(AccountFactory):
             phone_number=phone_number,
             is_active=True,
             group=manage_group,
+            is_manager=True,
         )
         return user
 

@@ -5,14 +5,17 @@ import { useAuth } from '../../contexts/AuthContext';
 import submission from '../../utils/submission';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ReCAPTCHA from 'react-google-recaptcha';  // Thêm ReCAPTCHA
 
 const ManagerLogin = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
-    const [error] = useState('');
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showCaptcha, setShowCaptcha] = useState(false);  
+    const [captchaToken, setCaptchaToken] = useState('');    
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,8 +28,14 @@ const ManagerLogin = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        const loginData = {
+            email: formData.email,
+            password: formData.password,
+            recaptcha: showCaptcha ? captchaToken : '',  // Thêm token CAPTCHA nếu có
+        };
+
         try {
-            const response = await submission('authentication/manager/login/', 'post', formData);
+            const response = await submission('authentication/manager/login/', 'post', loginData);
             
             if (response && response.status === "200") {
                 // Lấy token từ response.data
@@ -36,7 +45,7 @@ const ManagerLogin = () => {
                 });
 
                 // Hiển thị thông báo thành công
-                toast.success('Đăng nhập quản trị viên thành công!', {
+                toast.success('Admin login successful!', {
                     position: "top-right",
                     autoClose: 2000,
                     hideProgressBar: false,
@@ -45,16 +54,30 @@ const ManagerLogin = () => {
                     draggable: true,
                 });
 
-                // Chuyển hướng sau 2 giây
                 setTimeout(() => {
                     navigate('/admin-dashboard');
                 }, 2000);
-            } else {
-                toast.error('Thông tin đăng nhập không hợp lệ');
+            }else if (response.status === "400"){
+                toast.error(response.message, {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
+            } 
+            else {
+                toast.error('Invalid login information');
             }
         } catch (error) {
-            console.error('Lỗi đăng nhập:', error);
-            toast.error(error.response?.data?.detail || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+            console.error('Login error', error);
+            if (error.response?.status === 429) {
+                setShowCaptcha(true);
+                setError('Too many login attempts. Please complete the CAPTCHA.');
+            } else {
+                setError(error.response?.data?.detail || 'An error has occurred. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -80,7 +103,7 @@ const ManagerLogin = () => {
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="password" className="block text-sm font-medium mb-1">Mật khẩu</label>
+                    <label htmlFor="password" className="block text-sm font-medium mb-1">Password</label>
                     <div className="relative">
                         <input
                             type={showPassword ? 'text' : 'password'}
@@ -101,12 +124,23 @@ const ManagerLogin = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* CAPTCHA */}
+                {showCaptcha && (
+                    <div className="mb-4">
+                        <ReCAPTCHA
+                            sitekey="6LeZM5UqAAAAAMxEapzr-UbNvcupx_wV6vWf_zdI"
+                            onChange={(token) => setCaptchaToken(token)}
+                        />
+                    </div>
+                )}
+
                 <button 
                     type="submit" 
                     className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-gray-800 transition duration-200"
                     disabled={loading}
                 >
-                    {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    {loading ? 'Signing in...' : 'Sign in '}
                 </button>
             </form>
         </div>

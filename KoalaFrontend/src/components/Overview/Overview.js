@@ -201,7 +201,7 @@ const EmailListBlock = () => {
 
       // API request to submit feedback with the current token and user ID
       const response = await submission(
-        "feedback/feedback_send_from_user/",
+        "app/feedback/feedback_send_from_user/",
         "post",
         { feedback, customer: userId }, // Send feedback and user ID
         {

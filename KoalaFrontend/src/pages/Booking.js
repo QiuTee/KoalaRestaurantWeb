@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import submission from "../utils/submission";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Booking = () => {
   const [customerName, setCustomerName] = useState("");
@@ -13,51 +15,86 @@ const Booking = () => {
   const [showModal, setShowModal] = useState(false);
   const [isBookingConfirmed, setIsBookingConfirmed] = useState(false);
   const [token, setToken] = useState(null);
+
   useEffect(() => {
     const savedToken = localStorage.getItem("authToken");
     if (savedToken) {
-      setToken(savedToken); // Set the token in state
+      setToken(savedToken); 
     } else {
       console.log("No token found.");
     }
   }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setShowModal(true);
   };
 
   const confirmBooking = async () => {
-    const decoded = jwtDecode(token); // Decode the token to get the user details
-    const customer_id = decoded?.user_id; // Extract the user ID from the to
-    const bookingData = {
-     
-      customer_name: customerName,
-      customer: customer_id, // Use the decoded customer ID
-      phone_number: phoneNumber,
-      number_of_guest: guests, // Assuming static data or calculate based on logic
-      email: email,
-      date: date,
-      time: time + ":00", // Ensuring the time format matches backend requirements
-      note: note,
-    };
+    if (!token || typeof token !== 'string') {
+      toast.error("You have to login to booking table ", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
   
     try {
-      await submission("customer_booking/", "post", 
-        bookingData ,
+      const decoded = jwtDecode(token); 
+      const customer_id = decoded?.user_id; 
+      const bookingData = {
+        customer_name: customerName,
+        customer: customer_id, 
+        phone_number: phoneNumber,
+        number_of_guest: guests,
+        email: email,
+        date: date,
+        time: time + ":00",
+        note: note,
+      };
+      
+      await submission("app/customer_booking/", "post", 
+        bookingData,
         {
-        Authorization: `Bearer ${token}`, // Use the current token
-        "Content-Type": "application/json", // Ensure the correct content type
-      }
-    );
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      );
       console.log(bookingData);
       setIsBookingConfirmed(true);
       setShowModal(false);
+      toast.success("Booking successful!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error("Failed to submit booking:", error);
       if (error.response && error.response.data) {
-        alert(`Error: ${error.response.data.message}`);
+        toast.error(`Error: ${error.response.data.message}`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       } else {
-        alert("Unexpected error occurred. Please try again.");
+        toast.error("An error occurred. Please try again..", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     }
   };
@@ -68,6 +105,7 @@ const Booking = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <ToastContainer />
       <h1 className="text-4xl font-bold mb-6 text-center">Booking Table Reservation</h1>
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-md">

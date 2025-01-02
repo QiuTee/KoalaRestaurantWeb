@@ -77,6 +77,15 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/day",
+        "user": "1000/day",
+        "loginAttempts": "5/minute",
+    },
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -217,3 +226,6 @@ DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = config("GOOGLE_CLIENT_SECRET")
 SOCIAL_AUTH_PASSWORD = config("SOCIAL_AUTH_PASSWORD")
+
+RECAPTCHA_SECRET_KEY = config("RECAPTCHA_SECRET_KEY")
+RECAPTCHA_SITE_KEY = config("NEXT_PUBLIC_RECAPTCHA_SITE_KEY")
