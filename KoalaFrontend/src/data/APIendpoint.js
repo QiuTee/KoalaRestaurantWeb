@@ -1,2 +1,2 @@
-const APIendpoint = "http://localhost:8000/";
+const APIendpoint = "https://koalarestaurantweb.onrender.com/";
 export { APIendpoint };
