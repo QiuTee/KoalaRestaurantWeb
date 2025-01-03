@@ -9,7 +9,7 @@ const FeedbackManagement = () => {
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const data = await submission("feedback/", "get", null, {
+        const data = await submission("app/feedback/", "get", null, {
           Authorization: `Bearer ${tokens?.access}`,
         });
         setFeedbacks(data);
@@ -22,7 +22,7 @@ const FeedbackManagement = () => {
 
   const handleDeleteFeedback = async (id) => {
     try {
-      await submission(`feedback/${id}/`, "delete", null, {
+      await submission(`app/feedback/${id}/`, "delete", null, {
         Authorization: `Bearer ${tokens?.access}`,
       });
       setFeedbacks(feedbacks.filter((fb) => fb.id !== id));

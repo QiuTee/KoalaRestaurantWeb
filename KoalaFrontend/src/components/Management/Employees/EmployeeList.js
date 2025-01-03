@@ -6,7 +6,7 @@ import { Edit, Trash, SearchIcon } from "lucide-react";
 
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/drm1mr9va/";
 
-const EmployeeList = ({ handleEditEmployee }) => {
+const EmployeeList = ({ handleEditEmployee, handleDeleteEmployee }) => {
   const { tokens } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
@@ -34,7 +34,7 @@ const EmployeeList = ({ handleEditEmployee }) => {
     loadEmployees();
   }, [loadEmployees]);
 
-  const handleDeleteEmployee = async (employeeId) => {
+  const handleDeleteEmployeeInternal = async (employeeId) => {
     try {
       await submission(`app/management_employee/${employeeId}`, "delete", null, {
         Authorization: `Bearer ${tokens.access}`,
@@ -65,53 +65,57 @@ const EmployeeList = ({ handleEditEmployee }) => {
           onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state on input change
         />
       </div>
-      <table className="w-full table-auto mt-4">
-        <thead>
-          <tr>
-            <th className="border p-2">Photo</th>
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Role</th>
-            <th className="border p-2">Email</th>
-            <th className="border p-2">Phone</th>
-            <th className="border p-2">Salary</th>
-            <th className="border p-2">Start Date</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredEmployees.map((employee) => (
-            <tr key={employee.id}>
-              <td className="border p-2 flex justify-center items-center">
-                <img
-                  src={`${CLOUDINARY_BASE_URL}${employee.image}`}
-                  alt={`${employee.name}`}
-                  className="w-16 h-16 object-cover"
-                />
-              </td>
-              <td className="border p-2">{employee.employee_name}</td>
-              <td className="border p-2">{employee.role}</td>
-              <td className="border p-2">{employee.email}</td>
-              <td className="border p-2">{employee.phone}</td>
-              <td className="border p-2">${employee.salary}</td>
-              <td className="border p-2">{employee.start_date}</td>
-              <td className="border p-2">
-                <button
-                  onClick={() => handleEditEmployee(employee.id)}
-                  className="text-blue-500"
-                >
-                  <Edit className="text-blue-600" />
-                </button>
-                <button
-                  onClick={() => handleDeleteEmployee(employee.id)}
-                  className="text-red-500 ml-2"
-                >
-                  <Trash className="text-red-600" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <table className="w-full table-auto mt-4 border-collapse border-spacing-0">
+  <thead>
+    <tr>
+      <th className="border p-2">Image</th>
+      <th className="border p-2">Name</th>
+      <th className="border p-2">Role</th>
+      <th className="border p-2">Email</th>
+      <th className="border p-2">Phone</th>
+      <th className="border p-2">Salary</th>
+      <th className="border p-2">Start Date</th>
+      <th className="border p-2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {filteredEmployees.map((employee) => (
+      <tr key={employee.id} className="text-center">
+        <td className="border p-2">
+          <div className="w-16 h-16 flex justify-center items-center">
+            <img
+              src={`${CLOUDINARY_BASE_URL}${employee.image}`}
+              alt={employee.employee_name}
+              className="w-full h-full object-cover rounded-md"
+            />
+          </div>
+        </td>
+        <td className="border p-2"> {employee.employee_name} </td>
+        <td className="border p-2"> {employee.role} </td>
+        <td className="border p-2"> {employee.email} </td>
+        <td className="border p-2"> 0{employee.phone} </td>
+        <td className="border p-2"> {employee.salary} </td>
+        <td className="border p-2"> {employee.start_date} </td>
+        <td className="border p-2">
+          <div className="flex justify-center items-center space-x-2">
+            <button
+              onClick={() => handleEditEmployee(employee)}
+              className="bg-blue-500 text-white p-2 rounded-md"
+            >
+              <Edit className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => handleDeleteEmployeeInternal(employee.id)}
+              className="bg-red-500 text-white p-2 rounded-md"
+            >
+              <Trash className="w-5 h-5" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
     </div>
   );
 };

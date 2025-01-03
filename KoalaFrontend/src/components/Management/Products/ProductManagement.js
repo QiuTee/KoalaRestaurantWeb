@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../../contexts/AuthContext"; // Assuming the same AuthContext is used for authentication
+import { useAuth } from "../../../contexts/AuthContext";
 import ProductForm from "./ProductForm";
 import ProductList from "./ProductList";
-import submission from "../../../utils/submission"; // Assuming there's a utility for handling API requests
+import submission from "../../../utils/submission";
 
 const ProductManagement = () => {
     const { tokens } = useAuth();
     const [products, setProducts] = useState([]);
     const [formData, setFormData] = useState({
+        id: null,
         food_name: "",
         category: "",
         price: 0,
@@ -46,6 +47,7 @@ const ProductManagement = () => {
         }
 
         setFormData({
+            id: null,
             food_name: "",
             category: "",
             price: 0,
@@ -57,10 +59,9 @@ const ProductManagement = () => {
         setIsFormVisible(false);
     };
 
-    const handleEditProduct = (id) => {
-        const product = products.find((prod) => prod.id === id);
+    const handleEditProduct = (product) => {
         setFormData({ ...product });
-        setEditingId(id);
+        setEditingId(product.id);
         setIsFormVisible(true);
     };
 
@@ -78,6 +79,7 @@ const ProductManagement = () => {
     const handleCancel = () => {
         setIsFormVisible(false);
         setFormData({
+            id: null,
             food_name: "",
             category: "",
             price: 0,
@@ -111,7 +113,6 @@ const ProductManagement = () => {
                 Add Product
             </button>
 
-
             {isFormVisible && (
                 <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white shadow-lg rounded-lg p-6 w-[550px]">
@@ -127,7 +128,6 @@ const ProductManagement = () => {
             )}
 
             <ProductList
-                products={products}
                 handleEditProduct={handleEditProduct}
                 handleDeleteProduct={handleDeleteProduct}
             />

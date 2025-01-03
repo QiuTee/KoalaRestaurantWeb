@@ -89,7 +89,7 @@ class ManagementProduct(viewsets.ModelViewSet):
         serializers = self.serializer_class(instance, data, partial=True)
         serializers.is_valid(raise_exception=True)
         serializers.save()
-        return Responses.response_api("Update product successfully")
+        return Responses.response_api("Update product successfully", "200")
 
 
 # class ShowItemInMenu()

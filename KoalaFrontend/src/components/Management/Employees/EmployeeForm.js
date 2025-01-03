@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import submission from '../../../utils/submission';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
+
 const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, handleCancel }) => {
     const { tokens } = useAuth();
     const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
-        if (isEditing && formData.name) {
+        if (isEditing && formData.employee_name) {
             if (formData.imageFile) {
                 setPreviewImage(URL.createObjectURL(formData.imageFile));
             } else if (formData.image) {
@@ -54,18 +55,18 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 formDataToSend.append('image', formData.image);
             }
 
-
             formDataToSend.append('employee_name', formData.employee_name);
-
             formDataToSend.append('role', formData.role);
             formDataToSend.append('email', formData.email);
             formDataToSend.append('phone', formData.phone);
             formDataToSend.append('salary', formData.salary);
             formDataToSend.append('start_date', formData.start_date);
-            formDataToSend.append('manager', userId)
+            formDataToSend.append('manager', userId);
+
             for (let [key, value] of formDataToSend.entries()) {
                 console.log(`${key}:`, value);
             }
+
             const method = isEditing ? 'put' : 'post';
             const url = isEditing ? `app/management_employee/${formData.id}/` : 'app/management_employee/';
 
@@ -74,7 +75,7 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                 'Content-Type': 'multipart/form-data',
             });
 
-            if (response && response.status === '200') {
+            if (response && response.status === "200") {
                 handleAddEmployee(response.data);
             } else {
                 console.error('Failed to add employee:', response);
@@ -104,15 +105,10 @@ const EmployeeForm = ({ formData, setFormData, handleAddEmployee, isEditing, han
                     key={field.name}
                     type={field.type}
                     name={field.name}
-                    value={
-                        field.name === 'employee_name' && isEditing
-                            ? formData.name
-                            : formData[field.name] || ''
-                    }
-                    onChange={field.name === 'employee_name' && isEditing ? null : handleChange}
+                    value={formData[field.name] || ''}
+                    onChange={handleChange}
                     placeholder={field.placeholder || ''}
                     className="border p-2 rounded mb-4 w-full"
-                    readOnly={field.name === 'employee_name' && isEditing}
                 />
             ))}
 

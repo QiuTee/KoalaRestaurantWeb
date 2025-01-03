@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import submission from '../../../utils/submission';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
+
 const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handleCancel }) => {
     const { tokens } = useAuth();
     const [previewImage, setPreviewImage] = useState(null);
@@ -37,14 +38,13 @@ const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handl
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         const accessToken = tokens?.access;
         if (!accessToken) {
             console.error("Access token not found.");
             return;
         }
-
-
+    
         try {
             const formDataToSend = new FormData();
             const decoded = jwtDecode(accessToken);
@@ -60,18 +60,19 @@ const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handl
             formDataToSend.append('price', formData.price);
             formDataToSend.append('stock', formData.stock);
             formDataToSend.append('status', formData.status);
-            formDataToSend.append('manager', userId)
+            formDataToSend.append('manager', userId);
             for (let [key, value] of formDataToSend.entries()) {
                 console.log(`${key}:`, value);
             }
+            console.log('id:', formData.id);
             const method = isEditing ? 'put' : 'post';
             const url = isEditing ? `app/management_product/${formData.id}/` : 'app/management_product/';
-
+    
             const response = await submission(url, method, formDataToSend, {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'multipart/form-data',
             });
-
+    
             if (response) {
                 handleAddProduct(response.data);
             } else {
@@ -115,7 +116,7 @@ const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handl
                 className="border p-2 rounded mb-4 w-full"
             >
                 <option value="Available">Available</option>
-                <option value="Stock Out">Stock Out</option>
+                <option value="Unavailable">Unavailable</option>
             </select>
 
             <input
@@ -123,28 +124,28 @@ const ProductForm = ({ formData, setFormData, handleAddProduct, isEditing, handl
                 name="image"
                 onChange={handleImageChange}
                 className="border p-2 rounded mb-4 w-full"
-                accept="image/*"
             />
+
             {previewImage && (
                 <img
                     src={previewImage}
                     alt="Preview"
-                    className="w-32 h-32 object-cover rounded mb-4"
+                    className="w-full h-64 object-cover rounded mb-4"
                 />
             )}
 
-            <div className="flex justify-between">
-                <button
-                    onClick={handleSubmit}
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                    {isEditing ? 'Update Product' : 'Add Product'}
-                </button>
+            <div className="flex justify-end space-x-4">
                 <button
                     onClick={handleCancel}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    className="bg-gray-500 text-white px-4 py-2 rounded"
                 >
                     Cancel
+                </button>
+                <button
+                    onClick={handleSubmit}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    {isEditing ? 'Update' : 'Add'}
                 </button>
             </div>
         </div>

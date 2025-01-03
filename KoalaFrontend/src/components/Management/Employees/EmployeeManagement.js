@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import EmployeeForm from './EmployeeForm';
-import EmployeeList from './EmployeeList';
-import submission from '../../../utils/submission';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../../contexts/AuthContext";
+import EmployeeForm from "./EmployeeForm";
+import EmployeeList from "./EmployeeList";
+import submission from "../../../utils/submission";
 
 const EmployeeManagement = () => {
     const { tokens } = useAuth();
     const [employees, setEmployees] = useState([]);
     const [formData, setFormData] = useState({
-        name: '', role: '', phone: '', email: '', salary: '', start_date: ''
+        id: null,
+        employee_name: "",
+        role: "",
+        email: "",
+        phone: "",
+        salary: 0,
+        start_date: "",
+        imageFile: null,
     });
 
     const [editingId, setEditingId] = useState(null);
@@ -19,11 +26,11 @@ const EmployeeManagement = () => {
             if (!tokens?.access) return;
             try {
                 const data = await submission("app/management_employee/", "get", null, {
-                    Authorization: `Bearer ${tokens.access}`
+                    Authorization: `Bearer ${tokens.access}`,
                 });
                 setEmployees(data);
             } catch (error) {
-                console.error('Error fetching employee data:', error);
+                console.error("Error fetching employee data:", error);
             }
         };
         fetchEmployees();
@@ -31,37 +38,58 @@ const EmployeeManagement = () => {
 
     const handleAddOrUpdateEmployee = (newEmployee) => {
         if (editingId !== null) {
-            setEmployees(employees.map(emp => emp.id === editingId ? { ...emp, ...formData } : emp));
+            setEmployees(
+                employees.map((emp) =>
+                    emp.id === editingId ? { ...emp, ...formData } : emp
+                )
+            );
         } else {
             setEmployees([...employees, newEmployee]);
         }
 
-        setFormData({ name: '', role: '', phone: '', email: '', salary: '', start_date: '' });
+        setFormData({
+            id: null,
+            employee_name: "",
+            role: "",
+            email: "",
+            phone: "",
+            salary: 0,
+            start_date: "",
+            imageFile: null,
+        });
         setEditingId(null);
         setIsFormVisible(false);
     };
 
-    const handleEditEmployee = (id) => {
-        const employee = employees.find((emp) => emp.id === id);
+    const handleEditEmployee = (employee) => {
         setFormData({ ...employee });
-        setEditingId(id);
+        setEditingId(employee.id);
         setIsFormVisible(true);
     };
-    const
-        handleDeleteEmployee = async (id) => {
-            try {
-                await submission(`management_employee/${id}/`, "delete", null, {
-                    Authorization: `Bearer ${tokens.access}`,
-                });
-                setEmployees(employees.filter(emp => emp.id !== id));
-            } catch (error) {
-                console.error('Error deleting employee:', error);
-            }
-        };
+
+    const handleDeleteEmployee = async (id) => {
+        try {
+            await submission(`app/management_employee/${id}/`, "delete", null, {
+                Authorization: `Bearer ${tokens.access}`,
+            });
+            setEmployees(employees.filter((emp) => emp.id !== id));
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+        }
+    };
 
     const handleCancel = () => {
         setIsFormVisible(false);
-        setFormData({ name: '', role: '', phone: '', email: '', salary: '', start_date: '' });
+        setFormData({
+            id: null,
+            employee_name: "",
+            role: "",
+            email: "",
+            phone: "",
+            salary: 0,
+            start_date: "",
+            imageFile: null,
+        });
         setEditingId(null);
     };
 
@@ -85,8 +113,7 @@ const EmployeeManagement = () => {
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                Add
-                employee
+                Add Employee
             </button>
 
             {isFormVisible && (
@@ -104,7 +131,6 @@ const EmployeeManagement = () => {
             )}
 
             <EmployeeList
-                employees={employees}
                 handleEditEmployee={handleEditEmployee}
                 handleDeleteEmployee={handleDeleteEmployee}
             />

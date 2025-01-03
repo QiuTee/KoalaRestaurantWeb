@@ -63,7 +63,7 @@ const BookingManagement = () => {
               {bookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border">{booking.customer_name}</td>
-                  <td className="px-4 py-2 border">{booking.phone_number}</td>
+                  <td className="px-4 py-2 border"> 0{booking.phone_number}</td>
                   <td className="px-4 py-2 border">{booking.date}</td>
                   <td className="px-4 py-2 border">{booking.time}</td>
                   <td className="px-4 py-2 border">{booking.number_of_guest}</td>
