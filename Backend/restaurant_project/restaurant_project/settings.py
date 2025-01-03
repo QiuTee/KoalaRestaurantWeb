@@ -71,6 +71,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://koala-restaurant-web.vercel.app",
+    "https://koala-restaurant-kgnsxhxnh-qiutees-projects.vercel.app",
 ]
 
 REST_FRAMEWORK = {
